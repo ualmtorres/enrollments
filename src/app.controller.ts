@@ -112,6 +112,21 @@ export class AppController {
     return {'id: ': result.insertId };
   }
 
+  @Get('/students')
+  @ApiTags('students')
+  async getStudents(): Promise<object> {
+    // connect DB
+    const connection = await this.getConnection();
+
+    const query = 'SELECT * FROM students ';
+
+    const result = await connection.query(query);
+
+    connection.close();
+
+    return { data: result };
+  }
+
   getConnection() {
     return createConnection({
       type: 'mysql',
