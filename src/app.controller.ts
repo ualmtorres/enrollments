@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { createConnection } from 'typeorm';
 import { AppService } from './app.service';
-import { ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiProperty, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 class CreateCourseRequest {
   @ApiProperty({ example: 'Nuevo curso' })
@@ -46,6 +46,28 @@ export class AppController {
     connection.close();
 
     return { courseId: result.insertId };
+  }
+
+
+  @Get('/courses')
+  @ApiTags('courses')
+  @ApiQuery({ name: 'name', required: false })
+  async getCourses(@Query('name') name: string): Promise<object> {
+    const connection = await this.getConnection();
+
+    let query = 'SELECT * FROM courses';
+    let params = [];
+
+    if (name !== undefined) {
+      query += ' WHERE name = ?';
+      params.push(name);
+    }
+
+    const result = await connection.query(query, params);
+
+    connection.close();
+
+    return result;
   }
 
   getConnection() {
