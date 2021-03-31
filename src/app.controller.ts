@@ -10,6 +10,14 @@ class CreateCourseRequest {
   places: number;
 }
 
+class CreateStudentRequest {
+  @ApiProperty({ example: 'Manolo' })
+  name: string;
+  @ApiProperty({ example: '12345678Q' })
+  nif: string;
+  @ApiProperty({ example: 'mtorres@ual.es' })
+  email: string;
+}
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -68,6 +76,40 @@ export class AppController {
     connection.close();
 
     return result;
+  }
+
+  @Post('/students')
+  @ApiTags('students')
+  async createStudent(@Body() req: CreateStudentRequest): Promise<object> {
+    if (req.name == undefined || req.name.length < 2 || req.name.length > 255) {
+      throw new BadRequestException(
+        'El nombre del estudiante tiene que tener entre 2 y 255 caracteress',
+      );
+    }
+    if (req.nif == undefined || !/^[0-9]{8}[A-Z]$/g.test(req.nif)) {
+      throw new BadRequestException('El NIF tiene que tener formato correcto');
+    }
+    if (
+      req.email == undefined ||
+      !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g.test(
+        req.email,
+      )
+    ) {
+      throw new BadRequestException(
+        'El email tiene que tener formato correcto',
+      );
+    }
+
+    const connection = await this.getConnection();
+
+    const result = await connection.query(
+      'INSERT INTO students(name, nif, email) VALUES(?, ?, ?)',
+      [req.name, req.nif, req.email],
+    );
+
+    connection.close();
+
+    return {'id: ': result.insertId };
   }
 
   getConnection() {
