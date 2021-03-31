@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { createConnection } from 'typeorm';
 import { AppService } from './app.service';
 import { ApiProperty, ApiTags, ApiQuery } from '@nestjs/swagger';
@@ -17,6 +17,10 @@ class CreateStudentRequest {
   nif: string;
   @ApiProperty({ example: 'mtorres@ual.es' })
   email: string;
+}
+class EnrollStudentRequest {
+  @ApiProperty({ example: 1 })
+  studentId: number;
 }
 @Controller()
 export class AppController {
@@ -125,6 +129,56 @@ export class AppController {
     connection.close();
 
     return { data: result };
+  }
+
+  @Post('/courses/:courseId/enrollments')
+  @ApiTags('courses')
+  async enrollStudent(
+    @Body() req: EnrollStudentRequest,
+    @Param('courseId') courseId: string,
+  ): Promise<object> {
+    // connect DB
+    const connection = await this.getConnection();
+
+    const courses = await connection.query(
+      'SELECT * FROM courses WHERE id = ?',
+      [courseId],
+    );
+    if (courses.length === 0) {
+      connection.close();
+      throw new BadRequestException('Curso no encontrado');
+    }
+    const course = courses[0];
+
+    const students = await connection.query(
+      'SELECT * FROM students WHERE id = ?',
+      [req.studentId],
+    );
+    if (students.length === 0) {
+      connection.close();
+      throw new BadRequestException('Estudiante no encontrado');
+    }
+
+    const courseEnrollemnts = await connection.query(
+      'SELECT * FROM enrollments WHERE id_course = ?',
+      [courseId],
+    );
+    if (courseEnrollemnts.length === course.places) {
+      connection.close();
+      throw new BadRequestException('El curso está lleno');
+    }
+    courseEnrollemnts.forEach(enrollment => {
+      if (enrollment.id_student === req.studentId)
+        throw new BadRequestException('El estudiante ya está matriculado');
+    });
+
+    const result = await connection.query(
+      'INSERT INTO enrollments(id_course, id_student) VALUES(?, ?)',
+      [courseId, req.studentId],
+    );
+
+    connection.close();
+    return { enrollmentId: result.insertId };
   }
 
   getConnection() {
