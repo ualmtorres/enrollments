@@ -3,6 +3,7 @@ import { createConnection } from 'typeorm';
 import { AppService } from './app.service';
 import { ApiProperty, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { CreateCourseUseCase } from './Application/CreateCourseUseCase';
+import { MySQLCourseRepository } from './Infrastructure/MySQLCourseRepository';
 
 class CreateCourseRequest {
   @ApiProperty({ example: 'Nuevo curso' })
@@ -35,7 +36,7 @@ export class AppController {
   @Post('/courses')
   @ApiTags('courses')
   async createCourse(@Body() req: CreateCourseRequest): Promise<object> {
-    const useCase = new CreateCourseUseCase();
+    const useCase = new CreateCourseUseCase(new MySQLCourseRepository());
     try {
       const result = await useCase.execute(req.name, req.places);
       return result;

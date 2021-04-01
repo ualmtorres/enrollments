@@ -1,16 +1,10 @@
 import { createConnection } from 'typeorm';
 import { InvalidArgumentException } from '../Domain/InvalidArgumentException';
+import { CourseRepository } from '../Domain/CourseRepository';
+import { Course } from '../Domain/Course';
 export class CreateCourseUseCase {
-    getConnection() {
-        return createConnection({
-          type: 'mysql',
-          host: 'localhost',
-          port: 3306,
-          username: 'root',
-          password: 'secret',
-          database: 'ual',
-        });
-      }
+
+    constructor(private courses: CourseRepository) { }
 
     public async execute (name: string, places: number) {
         if (places === undefined || places < 1 || places > 8) {
@@ -27,14 +21,9 @@ export class CreateCourseUseCase {
               'El nombre de un curso debe estar entre 3 y 255 caracteres'
             );
           }
-          const connection = await this.getConnection();
-      
-          const result = await connection.query(
-            'INSERT INTO courses(name, places) VALUES(?, ?)',
-            [name, places],
-          );
-      
-          connection.close();
+
+          const course = new Course(name, places);
+          const result = await this.courses.save(course);
       
           return { courseId: result.insertId };
     }
