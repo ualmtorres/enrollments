@@ -12,16 +12,16 @@ export class CreateCourseUseCase {
         });
       }
 
-    public async execute (req) {
-        if (req.places === undefined || req.places < 1 || req.places > 8) {
+    public async execute (name: string, places: number) {
+        if (places === undefined || places < 1 || places > 8) {
             throw new BadRequestException(
               'El número de plazas de un curso deber estar entre 1 y 8'
             );
           }
           if (
-            req.name === undefined ||
-            req.name.length < 3 ||
-            req.name.length > 255
+            name === undefined ||
+            name.length < 3 ||
+            name.length > 255
           ) {
             throw new BadRequestException(
               'El nombre de un curso debe estar entre 3 y 255 caracteres',
@@ -31,7 +31,7 @@ export class CreateCourseUseCase {
       
           const result = await connection.query(
             'INSERT INTO courses(name, places) VALUES(?, ?)',
-            [req.name, req.places],
+            [name, places],
           );
       
           connection.close();
