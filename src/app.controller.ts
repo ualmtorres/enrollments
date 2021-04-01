@@ -33,16 +33,16 @@ export class AppController {
 
   @Post('/courses')
   @ApiTags('courses')
-  async createCourse(@Body() body: CreateCourseRequest): Promise<object> {
-    if (body.places === undefined || body.places < 1 || body.places > 8) {
+  async createCourse(@Body() req: CreateCourseRequest): Promise<object> {
+    if (req.places === undefined || req.places < 1 || req.places > 8) {
       throw new BadRequestException(
         'El número de plazas de un curso deber estar entre 1 y 8'
       );
     }
     if (
-      body.name === undefined ||
-      body.name.length < 3 ||
-      body.name.length > 255
+      req.name === undefined ||
+      req.name.length < 3 ||
+      req.name.length > 255
     ) {
       throw new BadRequestException(
         'El nombre de un curso debe estar entre 3 y 255 caracteres',
@@ -52,7 +52,7 @@ export class AppController {
 
     const result = await connection.query(
       'INSERT INTO courses(name, places) VALUES(?, ?)',
-      [body.name, body.places],
+      [req.name, req.places],
     );
 
     connection.close();
