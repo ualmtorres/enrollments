@@ -2,6 +2,7 @@ import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '
 import { createConnection } from 'typeorm';
 import { AppService } from './app.service';
 import { ApiProperty, ApiTags, ApiQuery } from '@nestjs/swagger';
+import { CreateCourseUseCase } from './Application/CreateCourseUseCase';
 
 class CreateCourseRequest {
   @ApiProperty({ example: 'Nuevo curso' })
@@ -34,30 +35,9 @@ export class AppController {
   @Post('/courses')
   @ApiTags('courses')
   async createCourse(@Body() req: CreateCourseRequest): Promise<object> {
-    if (req.places === undefined || req.places < 1 || req.places > 8) {
-      throw new BadRequestException(
-        'El número de plazas de un curso deber estar entre 1 y 8'
-      );
-    }
-    if (
-      req.name === undefined ||
-      req.name.length < 3 ||
-      req.name.length > 255
-    ) {
-      throw new BadRequestException(
-        'El nombre de un curso debe estar entre 3 y 255 caracteres',
-      );
-    }
-    const connection = await this.getConnection();
-
-    const result = await connection.query(
-      'INSERT INTO courses(name, places) VALUES(?, ?)',
-      [req.name, req.places],
-    );
-
-    connection.close();
-
-    return { courseId: result.insertId };
+    const useCase = new CreateCourseUseCase();
+    const result = useCase.execute(req);
+    return result;
   }
 
 
