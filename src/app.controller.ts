@@ -36,8 +36,12 @@ export class AppController {
   @ApiTags('courses')
   async createCourse(@Body() req: CreateCourseRequest): Promise<object> {
     const useCase = new CreateCourseUseCase();
-    const result = useCase.execute(req.name, req.places);
-    return result;
+    try {
+      const result = await useCase.execute(req.name, req.places);
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
 
