@@ -1,3 +1,4 @@
+import { InvalidArgumentException } from './InvalidArgumentException';
 export class Course {
     private id: number;
     private name: string;
@@ -6,6 +7,21 @@ export class Course {
     constructor (name: string, places: number) {
         this.name = name;
         this.places = places;
+
+        if (places === undefined || places < 1 || places > 8) {
+            throw new InvalidArgumentException (
+              'El número de plazas de un curso deber estar entre 1 y 8'
+            );
+          }
+          if (
+            name === undefined ||
+            name.length < 3 ||
+            name.length > 255
+          ) {
+            throw new InvalidArgumentException (
+              'El nombre de un curso debe estar entre 3 y 255 caracteres'
+            );
+          }
     }
 
     public getName() {
