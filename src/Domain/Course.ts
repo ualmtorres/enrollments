@@ -4,7 +4,8 @@ export class Course {
     private name: string;
     private places: number;
 
-    constructor (name: string, places: number) {
+    constructor (id: number, name: string, places: number) {
+        this.id = id;
         this.name = name;
         this.places = places;
 
@@ -22,6 +23,10 @@ export class Course {
               'El nombre de un curso debe estar entre 3 y 255 caracteres'
             );
           }
+    }
+
+    public getId() {
+      return this.id;
     }
 
     public getName() {

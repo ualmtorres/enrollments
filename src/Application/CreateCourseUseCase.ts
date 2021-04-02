@@ -8,7 +8,8 @@ export class CreateCourseUseCase {
 
     public async execute (name: string, places: number) {
 
-          const course = new Course(name, places);
+          const courseId = await this.courses.nextIdentity();
+          const course = new Course(courseId, name, places);
           const result = await this.courses.save(course);
 
           return { courseId: result.insertId };
