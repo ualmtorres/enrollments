@@ -26,7 +26,8 @@ class EnrollStudentRequest {
 }
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService, 
+    private useCase: CreateCourseUseCase) {}
 
   @Get()
   getHello(): string {
@@ -36,9 +37,8 @@ export class AppController {
   @Post('/courses')
   @ApiTags('courses')
   async createCourse(@Body() req: CreateCourseRequest): Promise<object> {
-    const useCase = new CreateCourseUseCase(new MySQLCourseRepository());
     try {
-      const result = await useCase.execute(req.name, req.places);
+      const result = await this.useCase.execute(req.name, req.places);
       return result;
     } catch (error) {
       throw new BadRequestException(error.message);
