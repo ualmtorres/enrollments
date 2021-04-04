@@ -4,5 +4,5 @@ export abstract class CourseRepository {
     abstract save(course: Course);
     // Aquí irían otros métodos p.e courseByStudent
 
-    abstract nextIdentity(): number;
+    abstract nextIdentity(): Promise<number>;
 }

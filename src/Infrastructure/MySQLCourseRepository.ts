@@ -4,8 +4,10 @@ import { createConnection } from 'typeorm';
 
 export class MySQLCourseRepository extends CourseRepository {
 
-    nextIdentity(): number {
-      return Math.floor(Date.now() / 1000);
+    async nextIdentity(): Promise<number> {
+      return new Promise((resolve) => {
+        resolve(Math.floor(Date.now() / 1000));
+      });
     }
 
     async save(course: Course) {
