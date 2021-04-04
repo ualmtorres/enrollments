@@ -5,4 +5,6 @@ export abstract class CourseRepository {
     // Aquí irían otros métodos p.e courseByStudent
 
     abstract nextIdentity(): Promise<number>;
+
+    abstract all(name: string): Promise<Course[]>;
 }

@@ -22,6 +22,27 @@ export class MySQLCourseRepository extends CourseRepository {
 
         return result;
     }
+
+    async all(name: string): Promise<Course[]> {
+      const connection = await this.getConnection();
+
+      let query = 'SELECT * FROM courses';
+      let params = [];
+  
+      if (name !== undefined) {
+        query += ' WHERE name = ?';
+        params.push(name);
+      }
+
+      const result = await connection.query(
+        query, params
+      );
+
+      connection.close();
+
+      return result;
+    }
+
     getConnection() {
         return createConnection({
           type: 'mysql',

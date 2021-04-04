@@ -5,12 +5,14 @@ import { CreateCourseUseCase } from './Application/CreateCourseUseCase';
 import { MySQLCourseRepository } from './Infrastructure/MySQLCourseRepository';
 import { CourseRepository } from './Domain/CourseRepository';
 import { PostgreSQLCourseRepository } from './Infrastructure/PostgreSQLCourseRepository';
+import { GetCoursesUseCase } from './Application/GetCoursesUseCase';
 
 @Module({
   imports: [],
   controllers: [AppController],
   providers: [AppService, 
     CreateCourseUseCase,
-    {provide: CourseRepository, useClass: PostgreSQLCourseRepository}],
+    {provide: CourseRepository, useClass: PostgreSQLCourseRepository},
+    GetCoursesUseCase],
 })
 export class AppModule {}

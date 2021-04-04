@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ApiProperty, ApiTags, ApiQuery } from '@nestjs/swagger';
 import { CreateCourseUseCase } from './Application/CreateCourseUseCase';
 import { MySQLCourseRepository } from './Infrastructure/MySQLCourseRepository';
+import { GetCoursesUseCase } from './Application/GetCoursesUseCase';
 
 class CreateCourseRequest {
   @ApiProperty({ example: 'Nuevo curso' })
@@ -27,7 +28,8 @@ class EnrollStudentRequest {
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService, 
-    private useCase: CreateCourseUseCase) {}
+    private useCase: CreateCourseUseCase,
+    private getUseCase: GetCoursesUseCase) {}
 
   @Get()
   getHello(): string {
@@ -50,21 +52,12 @@ export class AppController {
   @ApiTags('courses')
   @ApiQuery({ name: 'name', required: false })
   async getCourses(@Query('name') name: string): Promise<object> {
-    const connection = await this.getConnection();
-
-    let query = 'SELECT * FROM courses';
-    let params = [];
-
-    if (name !== undefined) {
-      query += ' WHERE name = ?';
-      params.push(name);
+    try {
+      const result = await this.getUseCase.execute(name);
+      return result;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-
-    const result = await connection.query(query, params);
-
-    connection.close();
-
-    return result;
   }
 
   @Post('/students')
